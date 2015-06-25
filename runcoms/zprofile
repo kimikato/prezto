@@ -17,8 +17,8 @@ fi
 # Editors
 #
 
-export EDITOR='nano'
-export VISUAL='nano'
+export EDITOR='vim'
+export VISUAL='vim'
 export PAGER='less'
 
 #
@@ -26,7 +26,7 @@ export PAGER='less'
 #
 
 if [[ -z "$LANG" ]]; then
-  export LANG='en_US.UTF-8'
+  export LANG='ja_JP.UTF-8'
 fi
 
 #
@@ -34,7 +34,15 @@ fi
 #
 
 # Ensure path arrays do not contain duplicates.
-typeset -gU cdpath fpath mailpath path
+typeset -gU cdpath fpath mailpath path manpath pythonpath
+typeset -guT PYTHONPATH pythonpath
+typeset -guT LD_LIBRARY_PATH ld_library_path
+typeset -x PATH MANPATH PYTHONPATH LD_LIBRARY_PATH
+
+if [[ $OSTYPE == darwin* ]]; then
+    typeset -gUT DYLD_LIBRARY_PATH dyld_library_path
+    typeset -x DYLD_LIBRARY_PATH
+fi
 
 # Set the the list of directories that cd searches.
 # cdpath=(
@@ -44,7 +52,32 @@ typeset -gU cdpath fpath mailpath path
 # Set the list of directories that Zsh searches for programs.
 path=(
   /usr/local/{bin,sbin}
+  $HOME/bin
   $path
+)
+
+#
+# ManPaths
+#
+manpath=(
+    /usr/local/opt/coreutils/libexec/gnuman(N-/)
+    $manpath
+)
+
+#
+# PythonPath
+#
+pythonpath=(
+    $HOME/local/lib/python(N-/)
+    $pythonpath
+)
+
+#
+# LD_LIBRARY_PATH
+#
+ld_library_path=(
+    $HOME/local/lib(N-/)
+    $ld_library_path
 )
 
 #
@@ -63,6 +96,51 @@ if (( $#commands[(i)lesspipe(|.sh)] )); then
 fi
 
 #
+# GISTY
+#
+export GISTY_DIR="$HOME/work/gists"
+export GISTY_ACCESS_TOKEN="840962b701e9c99c7ec3411bc693f53734d9727c"
+
+#
+# PostgreSQL
+#
+export PGDATA=/usr/local/var/postgres
+
+#
+# Docker
+#
+export DOCKER_HOST=tcp://localhost:2375
+
+#
+# Mono
+#
+export MONO_GAC_PREFIX=/usr/local
+
+#
+# Golang
+#
+if [ -x "`which go`" ]; then
+    export GOROOT=`go env GOROOT`
+    export GOPATH=$HOME/go
+    path=( $GOROOT/bin(N-/) $GOPATH/bin(N-/) $path )
+fi
+
+#
+# .NET Version Manager
+#
+export MONO_GAC_PREFIX=/usr/local
+source dnvm.sh
+export MONO_MANAGED_WATCHER=false
+
+#
+# Heroku
+#
+path=(
+    /usr/local/heroku/bin(N-/)
+    $path
+)
+
+#
 # Temporary Files
 #
 
@@ -72,3 +150,11 @@ if [[ ! -d "$TMPDIR" ]]; then
 fi
 
 TMPPREFIX="${TMPDIR%/}/zsh"
+
+#
+# Alias
+#
+alias ssh-vps01="ssh -p 10022 kimikato@vps01.29lab.jp"
+alias ssh-vps02="ssh -p 10022 kimikato@vps02.29lab.jp"
+alias sftp-vps01="sftp -P 10022 kimikato@vps01.29lab.jp"
+alias sftp-vps01="sftp -P 10022 kimikato@vps02.29lab.jp"
